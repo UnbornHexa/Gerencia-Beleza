@@ -94,11 +94,9 @@ Sistema full-stack moderno para gerenciamento de negócios de beleza (manicures 
 
 1. Clone o repositório:
 ```bash
-git clone <URL_DO_SEU_REPOSITORIO>
+git clone https://github.com/UnbornHexa/Gerencia-Beleza.git
 cd gerencia-beleza
 ```
-
-> **Nota**: Substitua `<URL_DO_SEU_REPOSITORIO>` pela URL real do seu repositório Git (ex: `https://github.com/seu-usuario/gerencia-beleza.git`)
 
 2. Configure as variáveis de ambiente (opcional):
 ```bash
