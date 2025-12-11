@@ -30,15 +30,17 @@ Sistema full-stack moderno para gerenciamento de negócios de beleza (manicures 
 - **MongoDB** - Banco de dados
 
 ### APIs Externas
-- **IBGE API** - Busca de endereços por CEP
-- **WhatsApp API** - Integração de mensagens
+- **ViaCEP** - Busca de endereços por CEP (pública, sem autenticação)
+- **IBGE API** - Busca de estados e municípios (pública, sem autenticação)
+- **WhatsApp API** - Integração de mensagens (requer API key)
 - **Google Calendar API** - Sincronização de agenda (opcional)
 
 ## 📋 Funcionalidades
 
 ### 1. Autenticação
 - Login e registro de profissionais
-- Integração com API IBGE para busca de endereço por CEP
+- Integração com ViaCEP para busca de endereço por CEP
+- Integração com IBGE API para busca de estados e municípios
 - Validação de email único
 
 ### 2. CRUD de Clientes
@@ -92,9 +94,11 @@ Sistema full-stack moderno para gerenciamento de negócios de beleza (manicures 
 
 1. Clone o repositório:
 ```bash
-git clone <repository-url>
+git clone <URL_DO_SEU_REPOSITORIO>
 cd gerencia-beleza
 ```
+
+> **Nota**: Substitua `<URL_DO_SEU_REPOSITORIO>` pela URL real do seu repositório Git (ex: `https://github.com/seu-usuario/gerencia-beleza.git`)
 
 2. Configure as variáveis de ambiente (opcional):
 ```bash
@@ -171,15 +175,28 @@ JWT_SECRET=your-super-secret-jwt-key-change-in-production
 JWT_EXPIRES_IN=7d
 
 # APIs Externas
+# ViaCEP não requer configuração (API pública)
 IBGE_API_URL=https://servicodados.ibge.gov.br/api/v1
+
+# WhatsApp API (opcional - se não configurado, usa links do WhatsApp)
+# IMPORTANTE: Esta é uma API key GLOBAL para todo o sistema
+# Todos os usuários compartilham a mesma chave de API
 WHATSAPP_API_URL=https://api.whatsapp.com
 WHATSAPP_API_KEY=your-whatsapp-api-key
+
+# Google Calendar (opcional)
 GOOGLE_CALENDAR_CLIENT_ID=your-google-client-id
 GOOGLE_CALENDAR_CLIENT_SECRET=your-google-client-secret
 
 # Frontend
 VITE_API_URL=http://localhost:3001
 ```
+
+### 📌 Nota sobre API Keys
+
+- **ViaCEP e IBGE API**: Não requerem autenticação, são APIs públicas e gratuitas
+- **WhatsApp API Key**: É uma chave **global** para todo o sistema. Todos os profissionais autônomos que usam a plataforma compartilham a mesma API key. Se você precisar que cada cliente tenha sua própria chave, será necessário modificar a arquitetura para armazenar a chave por usuário no banco de dados
+- **Google Calendar**: Opcional, usado apenas se você quiser sincronizar a agenda com o Google Calendar
 
 ## 📝 Scripts Disponíveis
 
