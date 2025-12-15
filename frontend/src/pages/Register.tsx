@@ -81,12 +81,10 @@ export default function Register() {
   }, []);
 
   useEffect(() => {
-    if (error) {
-      // Resetar visibilidade e depois mostrar o erro com animação
-      setIsErrorVisible(false);
-      const timer = setTimeout(() => setIsErrorVisible(true), 50);
-      return () => clearTimeout(timer);
-    } else {
+    if (error && error.trim() !== '') {
+      // Mostrar o erro imediatamente quando ele é definido
+      setIsErrorVisible(true);
+    } else if (!error) {
       // Iniciar animação de fade-out antes de remover
       setIsErrorVisible(false);
     }
@@ -94,16 +92,21 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    if (loading) return; // Prevenir múltiplos submits
+    
     setLoading(true);
-    // Não limpar o erro antes - deixar que o novo erro substitua o anterior
+    setError(''); // Limpar erro anterior
 
     try {
       await register(formData);
+      // Só navegar se o registro for bem-sucedido
       navigate('/');
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Erro ao criar conta. Verifique os dados informados.';
-      setError(errorMessage);
       setLoading(false);
+      setError(errorMessage);
       // Não navegar em caso de erro, manter o usuário na página de registro
     }
   };
@@ -123,16 +126,16 @@ export default function Register() {
             <CardDescription className="text-center">Preencha os dados para criar sua conta</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               {error && (
                 <div 
                   className={`bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded transition-all duration-300 overflow-hidden ${
                     isErrorVisible 
-                      ? 'opacity-100 max-h-32 animate-in fade-in' 
-                      : 'opacity-0 max-h-0 py-0 border-0 animate-out fade-out'
+                      ? 'opacity-100 max-h-32' 
+                      : 'opacity-0 max-h-0 py-0 border-0'
                   }`}
-                  onAnimationEnd={() => {
-                    if (!isErrorVisible) {
+                  onTransitionEnd={() => {
+                    if (!isErrorVisible && error) {
                       setError('');
                     }
                   }}

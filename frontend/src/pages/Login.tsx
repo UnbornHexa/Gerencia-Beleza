@@ -19,24 +19,27 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (error) {
-      // Resetar visibilidade e depois mostrar o erro com animação
-      setIsErrorVisible(false);
-      const timer = setTimeout(() => setIsErrorVisible(true), 50);
-      return () => clearTimeout(timer);
-    } else {
+    if (error && error.trim() !== '') {
+      // Mostrar o erro imediatamente quando ele é definido
+      setIsErrorVisible(true);
+    } else if (!error) {
       // Iniciar animação de fade-out antes de remover
       setIsErrorVisible(false);
     }
   }, [error]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    if (loading) return; // Prevenir múltiplos submits
+    
     setLoading(true);
-    // Não limpar o erro antes - deixar que o novo erro substitua o anterior
+    setError(''); // Limpar erro anterior
 
     try {
       await login(email, password);
+      // Só navegar se o login for bem-sucedido
       navigate('/');
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Credenciais inválidas. Verifique seu email e senha.';
@@ -61,16 +64,16 @@ export default function Login() {
           <CardDescription className="text-center">Entre com sua conta para continuar</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             {error && (
               <div 
                 className={`bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded transition-all duration-300 overflow-hidden ${
                   isErrorVisible 
-                    ? 'opacity-100 max-h-32 animate-in fade-in' 
-                    : 'opacity-0 max-h-0 py-0 border-0 animate-out fade-out'
+                    ? 'opacity-100 max-h-32' 
+                    : 'opacity-0 max-h-0 py-0 border-0'
                 }`}
-                onAnimationEnd={() => {
-                  if (!isErrorVisible) {
+                onTransitionEnd={() => {
+                  if (!isErrorVisible && error) {
                     setError('');
                   }
                 }}
