@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
@@ -15,20 +15,34 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isErrorVisible, setIsErrorVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (error) {
+      // Resetar visibilidade e depois mostrar o erro com animação
+      setIsErrorVisible(false);
+      const timer = setTimeout(() => setIsErrorVisible(true), 50);
+      return () => clearTimeout(timer);
+    } else {
+      // Iniciar animação de fade-out antes de remover
+      setIsErrorVisible(false);
+    }
+  }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
+    // Não limpar o erro antes - deixar que o novo erro substitua o anterior
 
     try {
       await login(email, password);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao fazer login');
-    } finally {
+      const errorMessage = err.response?.data?.message || 'Credenciais inválidas. Verifique seu email e senha.';
+      setError(errorMessage);
       setLoading(false);
+      // Não navegar em caso de erro, manter o usuário na página de login
     }
   };
 
@@ -49,8 +63,21 @@ export default function Login() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                {error}
+              <div 
+                className={`bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded transition-all duration-300 overflow-hidden ${
+                  isErrorVisible 
+                    ? 'opacity-100 max-h-32 animate-in fade-in' 
+                    : 'opacity-0 max-h-0 py-0 border-0 animate-out fade-out'
+                }`}
+                onAnimationEnd={() => {
+                  if (!isErrorVisible) {
+                    setError('');
+                  }
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{error}</span>
+                </div>
               </div>
             )}
             <div className="space-y-2">
@@ -60,7 +87,11 @@ export default function Login() {
                 type="email"
                 placeholder="seu@email.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  // Iniciar animação de fade-out quando o usuário começar a digitar
+                  if (error) setIsErrorVisible(false);
+                }}
                 required
               />
             </div>
@@ -70,7 +101,11 @@ export default function Login() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  // Iniciar animação de fade-out quando o usuário começar a digitar
+                  if (error) setIsErrorVisible(false);
+                }}
                 required
               />
             </div>
@@ -79,7 +114,7 @@ export default function Login() {
             </Button>
             <div className="text-center text-sm">
               <span className="text-gray-600">Não tem uma conta? </span>
-              <Link to="/register" className="text-primary hover:underline">
+              <Link to="/register" className="text-primary hover:text-primary/70 transition-colors">
                 Criar conta
               </Link>
             </div>

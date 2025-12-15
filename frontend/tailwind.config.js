@@ -22,7 +22,7 @@ export default {
           foreground: 'hsl(var(--secondary-foreground))',
         },
         destructive: {
-          DEFAULT: '#FF647C',
+          DEFAULT: '#E63946',
           foreground: 'hsl(var(--destructive-foreground))',
         },
         success: {

@@ -11,6 +11,7 @@ import { FinancesModule } from './finances/finances.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { InsightsModule } from './insights/insights.module';
 import { ExternalApisModule } from './external-apis/external-apis.module';
+import { SeedModule } from './seed/seed.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
 @Module({
@@ -29,6 +30,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     AppointmentsModule,
     InsightsModule,
     ExternalApisModule,
+    SeedModule,
   ],
   providers: [
     {

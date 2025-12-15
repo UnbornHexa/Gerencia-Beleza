@@ -90,7 +90,7 @@ export class AppointmentsService {
       const services = await Promise.all(
         updateAppointmentDto.serviceIds.map(serviceId => this.servicesService.findOne(serviceId, userId)),
       );
-      updateAppointmentDto.totalAmount = services.reduce((sum, service) => sum + service.price, 0) as any;
+      appointment.totalAmount = services.reduce((sum, service) => sum + service.price, 0);
     }
 
     if (updateAppointmentDto.date) {

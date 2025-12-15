@@ -55,17 +55,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await api.post('/auth/login', { email, password });
-    localStorage.setItem('token', response.data.access_token);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
-    setUser(response.data.user);
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      localStorage.setItem('token', response.data.access_token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      setUser(response.data.user);
+    } catch (error: any) {
+      // Re-throw the error so it can be handled in the component
+      throw error;
+    }
   };
 
   const register = async (data: any) => {
-    const response = await api.post('/auth/register', data);
-    localStorage.setItem('token', response.data.access_token);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
-    setUser(response.data.user);
+    try {
+      const response = await api.post('/auth/register', data);
+      localStorage.setItem('token', response.data.access_token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      setUser(response.data.user);
+    } catch (error: any) {
+      // Re-throw the error so it can be handled in the component
+      throw error;
+    }
   };
 
   const logout = () => {

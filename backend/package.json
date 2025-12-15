@@ -28,7 +28,7 @@
     "@nestjs/passport": "^10.0.3",
     "@nestjs/mongoose": "^10.0.2",
     "@nestjs/schedule": "^4.0.0",
-    "passport": "^1.0.1",
+    "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "bcrypt": "^5.1.1",

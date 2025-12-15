@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { Plus, TrendingUp, TrendingDown, Calendar, DollarSign, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { format, subMonths, addMonths } from 'date-fns';
 import WhatsAppModal from '../components/modals/WhatsAppModal';
+import FinanceModal from '../components/modals/FinanceModal';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Dashboard() {
@@ -21,6 +22,8 @@ export default function Dashboard() {
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
   const [whatsappAction, setWhatsappAction] = useState<'confirm' | 'reschedule' | 'cancel'>('confirm');
+  const [incomeModalOpen, setIncomeModalOpen] = useState(false);
+  const [expenseModalOpen, setExpenseModalOpen] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -117,63 +120,79 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-gray-600">Visão geral do seu negócio</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-gray-600">Visão geral do seu negócio</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            onClick={() => {
+              setIncomeModalOpen(true);
+            }}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Adicionar Ganho
+          </Button>
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={() => {
+              setExpenseModalOpen(true);
+            }}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Adicionar Despesa
+          </Button>
+        </div>
       </div>
 
-      {/* Cash Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600">Mês Anterior</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cashData.previousMonth)}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600">Mês Atual</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cashData.currentMonth)}
-            </div>
-            <div className={`text-sm mt-2 ${calculatePercentage(cashData.currentMonth, cashData.previousMonth) >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {calculatePercentage(cashData.currentMonth, cashData.previousMonth) >= 0 ? (
-                <TrendingUp className="inline w-4 h-4 mr-1" />
-              ) : (
-                <TrendingDown className="inline w-4 h-4 mr-1" />
-              )}
-              {Math.abs(calculatePercentage(cashData.currentMonth, cashData.previousMonth)).toFixed(1)}% vs mês anterior
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600">Próximo Mês</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cashData.nextMonth)}
-            </div>
-            <div className={`text-sm mt-2 ${calculatePercentage(cashData.nextMonth, cashData.currentMonth) >= 0 ? 'text-success' : 'text-destructive'}`}>
-              {calculatePercentage(cashData.nextMonth, cashData.currentMonth) >= 0 ? (
-                <TrendingUp className="inline w-4 h-4 mr-1" />
-              ) : (
-                <TrendingDown className="inline w-4 h-4 mr-1" />
-              )}
-              {Math.abs(calculatePercentage(cashData.nextMonth, cashData.currentMonth)).toFixed(1)}% vs mês atual
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
+      {/* Cash Cards and Daily Projection */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Resumo Financeiro</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <div className="text-sm font-medium text-gray-600 mb-1">Mês Anterior</div>
+                <div className="text-xl font-bold">
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cashData.previousMonth)}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-600 mb-1">Mês Atual</div>
+                <div className="text-xl font-bold">
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cashData.currentMonth)}
+                </div>
+                <div className={`text-xs mt-1 ${calculatePercentage(cashData.currentMonth, cashData.previousMonth) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  {calculatePercentage(cashData.currentMonth, cashData.previousMonth) >= 0 ? (
+                    <TrendingUp className="inline w-3 h-3 mr-1" />
+                  ) : (
+                    <TrendingDown className="inline w-3 h-3 mr-1" />
+                  )}
+                  {Math.abs(calculatePercentage(cashData.currentMonth, cashData.previousMonth)).toFixed(1)}% vs mês anterior
+                </div>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-600 mb-1">Próximo Mês</div>
+                <div className="text-xl font-bold">
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cashData.nextMonth)}
+                </div>
+                <div className={`text-xs mt-1 ${calculatePercentage(cashData.nextMonth, cashData.currentMonth) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  {calculatePercentage(cashData.nextMonth, cashData.currentMonth) >= 0 ? (
+                    <TrendingUp className="inline w-3 h-3 mr-1" />
+                  ) : (
+                    <TrendingDown className="inline w-3 h-3 mr-1" />
+                  )}
+                  {Math.abs(calculatePercentage(cashData.nextMonth, cashData.currentMonth)).toFixed(1)}% vs mês atual
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader>
             <CardTitle>Projeção do Dia</CardTitle>
@@ -186,25 +205,6 @@ export default function Dashboard() {
             <p className="text-sm text-gray-600 mt-2">
               Baseado nos agendamentos confirmados de hoje
             </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Ações Rápidas</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Link to="/finances">
-              <Button className="w-full" variant="outline">
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Ganho
-              </Button>
-            </Link>
-            <Link to="/finances">
-              <Button className="w-full" variant="outline">
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Despesa
-              </Button>
-            </Link>
           </CardContent>
         </Card>
       </div>
@@ -324,6 +324,28 @@ export default function Dashboard() {
           return message.replace('{date}', date).replace('{time}', time).replace('{client}', clientName);
         })()}
         appointment={selectedAppointment}
+      />
+      <FinanceModal
+        open={incomeModalOpen}
+        onClose={() => {
+          setIncomeModalOpen(false);
+        }}
+        onSuccess={() => {
+          loadDashboardData();
+          setIncomeModalOpen(false);
+        }}
+        type="income"
+      />
+      <FinanceModal
+        open={expenseModalOpen}
+        onClose={() => {
+          setExpenseModalOpen(false);
+        }}
+        onSuccess={() => {
+          loadDashboardData();
+          setExpenseModalOpen(false);
+        }}
+        type="expense"
       />
     </div>
   );

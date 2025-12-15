@@ -15,6 +15,7 @@ export default function Register() {
   const { register } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isErrorVisible, setIsErrorVisible] = useState(false);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
   const [formData, setFormData] = useState({
@@ -79,18 +80,31 @@ export default function Register() {
     fetchStates();
   }, []);
 
+  useEffect(() => {
+    if (error) {
+      // Resetar visibilidade e depois mostrar o erro com animação
+      setIsErrorVisible(false);
+      const timer = setTimeout(() => setIsErrorVisible(true), 50);
+      return () => clearTimeout(timer);
+    } else {
+      // Iniciar animação de fade-out antes de remover
+      setIsErrorVisible(false);
+    }
+  }, [error]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
+    // Não limpar o erro antes - deixar que o novo erro substitua o anterior
 
     try {
       await register(formData);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao criar conta');
-    } finally {
+      const errorMessage = err.response?.data?.message || 'Erro ao criar conta. Verifique os dados informados.';
+      setError(errorMessage);
       setLoading(false);
+      // Não navegar em caso de erro, manter o usuário na página de registro
     }
   };
 
@@ -111,8 +125,21 @@ export default function Register() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                  {error}
+                <div 
+                  className={`bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded transition-all duration-300 overflow-hidden ${
+                    isErrorVisible 
+                      ? 'opacity-100 max-h-32 animate-in fade-in' 
+                      : 'opacity-0 max-h-0 py-0 border-0 animate-out fade-out'
+                  }`}
+                  onAnimationEnd={() => {
+                    if (!isErrorVisible) {
+                      setError('');
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{error}</span>
+                  </div>
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -270,7 +297,7 @@ export default function Register() {
               </Button>
               <div className="text-center text-sm">
                 <span className="text-gray-600">Já tem uma conta? </span>
-                <Link to="/login" className="text-primary hover:underline">
+                <Link to="/login" className="text-primary hover:text-primary/70 transition-colors">
                   Fazer login
                 </Link>
               </div>

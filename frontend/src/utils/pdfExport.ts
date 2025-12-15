@@ -42,7 +42,7 @@ export function exportFinanceReport(data: FinanceData) {
   doc.text(`Total de Despesas: ${formatCurrency(data.summary.totalExpense)}`, 20, yPosition);
   yPosition += 7;
   doc.setFontSize(12);
-  doc.setTextColor(data.summary.balance >= 0 ? 0, 150, 0 : 255, 0, 0);
+  doc.setTextColor(...(data.summary.balance >= 0 ? [0, 150, 0] : [255, 0, 0]));
   doc.text(`Saldo: ${formatCurrency(data.summary.balance)}`, 20, yPosition);
   doc.setTextColor(0, 0, 0);
   yPosition += 15;
@@ -139,7 +139,7 @@ export function exportFinanceReport(data: FinanceData) {
     xPos += colWidths[1];
     doc.text(description, xPos, yPosition);
     xPos += colWidths[2];
-    doc.setTextColor(finance.type === 'income' ? 0, 150, 0 : 255, 0, 0);
+    doc.setTextColor(...(finance.type === 'income' ? [0, 150, 0] : [255, 0, 0]));
     doc.text(amount, xPos, yPosition);
     doc.setTextColor(0, 0, 0);
     yPosition += 6;
