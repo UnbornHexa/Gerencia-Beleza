@@ -1,0 +1,20 @@
+{
+  "name": "gerencia-beleza",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev:mongodb && concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:mongodb": "docker-compose up -d mongodb",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:stop": "docker-compose stop mongodb",
+    "docker:up": "docker-compose up -d --build",
+    "docker:watch": "node watch-docker.js",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+  },
+  "devDependencies": {
+    "chokidar": "^3.6.0",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^8.2.2"
+  }
+}

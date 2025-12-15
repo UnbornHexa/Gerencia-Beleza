@@ -297,7 +297,7 @@ export default function ClientModal({ open, onClose, onSuccess, client }: Client
                 }
               />
             </div>
-            <div className="space-y-2 flex items-center">
+            <div className="flex items-center pt-5">
               <input
                 type="checkbox"
                 id="isVip"

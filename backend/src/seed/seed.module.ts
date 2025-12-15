@@ -10,3 +10,4 @@ import { User, UserSchema } from '../users/schemas/user.schema';
   providers: [SeedService],
 })
 export class SeedModule {}
+

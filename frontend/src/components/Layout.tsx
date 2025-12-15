@@ -68,7 +68,9 @@ export default function Layout() {
         </div>
       </aside>
       <main className="ml-16 p-8">
-        <Outlet />
+        <div key={location.pathname} className="page-fade-in">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
