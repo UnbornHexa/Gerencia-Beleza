@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
+import { useToast } from '../../hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -26,6 +27,7 @@ const expenseCategories = [
 ];
 
 export default function FinanceModal({ open, onClose, onSuccess, type, finance }: FinanceModalProps) {
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [services, setServices] = useState<any[]>([]);
   const [formData, setFormData] = useState({
@@ -86,13 +88,27 @@ export default function FinanceModal({ open, onClose, onSuccess, type, finance }
 
       if (finance) {
         await api.put(`/finances/${finance._id}`, data);
+        toast({
+          variant: 'success',
+          title: 'Sucesso!',
+          description: 'Registro financeiro atualizado com sucesso!',
+        });
       } else {
         await api.post('/finances', data);
+        toast({
+          variant: 'success',
+          title: 'Sucesso!',
+          description: 'Registro financeiro criado com sucesso!',
+        });
       }
       onSuccess();
       onClose();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Erro ao salvar registro financeiro');
+      toast({
+        variant: 'error',
+        title: 'Erro',
+        description: error.response?.data?.message || 'Erro ao salvar registro financeiro',
+      });
     } finally {
       setLoading(false);
     }

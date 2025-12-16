@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
+import { useToast } from '../../hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -15,6 +16,7 @@ interface AppointmentModalProps {
 }
 
 export default function AppointmentModal({ open, onClose, onSuccess, appointment }: AppointmentModalProps) {
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
@@ -103,13 +105,27 @@ export default function AppointmentModal({ open, onClose, onSuccess, appointment
 
       if (appointment) {
         await api.put(`/appointments/${appointment._id}`, data);
+        toast({
+          variant: 'success',
+          title: 'Sucesso!',
+          description: 'Agendamento atualizado com sucesso!',
+        });
       } else {
         await api.post('/appointments', data);
+        toast({
+          variant: 'success',
+          title: 'Sucesso!',
+          description: 'Agendamento criado com sucesso!',
+        });
       }
       onSuccess();
       onClose();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Erro ao salvar agendamento');
+      toast({
+        variant: 'error',
+        title: 'Erro',
+        description: error.response?.data?.message || 'Erro ao salvar agendamento',
+      });
     } finally {
       setLoading(false);
     }

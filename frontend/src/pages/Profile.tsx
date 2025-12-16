@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../hooks/use-toast';
 import { api } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
@@ -9,6 +10,7 @@ import { Textarea } from '../components/ui/textarea';
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: user?.email || '',
@@ -26,10 +28,18 @@ export default function Profile() {
     try {
       const response = await api.put('/users/me', formData);
       updateUser(response.data);
-      alert('Perfil atualizado com sucesso!');
-    } catch (error) {
+      toast({
+        variant: 'success',
+        title: 'Sucesso!',
+        description: 'Perfil atualizado com sucesso!',
+      });
+    } catch (error: any) {
       console.error('Erro ao atualizar perfil:', error);
-      alert('Erro ao atualizar perfil');
+      toast({
+        variant: 'error',
+        title: 'Erro',
+        description: error.response?.data?.message || 'Erro ao atualizar perfil',
+      });
     } finally {
       setLoading(false);
     }
@@ -44,10 +54,18 @@ export default function Profile() {
     setLoading(true);
     try {
       await api.put('/users/me/password', { currentPassword, newPassword });
-      alert('Senha alterada com sucesso!');
+      toast({
+        variant: 'success',
+        title: 'Sucesso!',
+        description: 'Senha alterada com sucesso!',
+      });
       form.reset();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Erro ao alterar senha');
+      toast({
+        variant: 'error',
+        title: 'Erro',
+        description: error.response?.data?.message || 'Erro ao alterar senha',
+      });
     } finally {
       setLoading(false);
     }

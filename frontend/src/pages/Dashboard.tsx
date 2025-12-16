@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
+import { useToast } from '../hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Plus, TrendingUp, TrendingDown, Calendar, DollarSign, CheckCircle, XCircle, Clock } from 'lucide-react';
@@ -11,6 +12,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [cashData, setCashData] = useState({
     previousMonth: 0,
     currentMonth: 0,
@@ -107,7 +109,11 @@ export default function Dashboard() {
         setWhatsappAction(action);
         setWhatsappModalOpen(true);
       } else {
-        alert('Cliente não possui telefone cadastrado');
+        toast({
+          variant: 'warning',
+          title: 'Aviso',
+          description: 'Cliente não possui telefone cadastrado',
+        });
       }
     } catch (error) {
       console.error('Erro ao processar ação:', error);

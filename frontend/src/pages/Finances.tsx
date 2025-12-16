@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
+import { useToast } from '../hooks/use-toast';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Select } from '../components/ui/select';
@@ -9,6 +10,7 @@ import FinanceModal from '../components/modals/FinanceModal';
 import { exportFinanceReport } from '../utils/pdfExport';
 
 export default function Finances() {
+  const { toast } = useToast();
   const [finances, setFinances] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [period, setPeriod] = useState('month');
@@ -69,7 +71,11 @@ export default function Finances() {
                   endDate: period === 'custom' ? new Date().toISOString().split('T')[0] : undefined,
                 });
               } else {
-                alert('Carregue os dados primeiro');
+                toast({
+                  variant: 'warning',
+                  title: 'Aviso',
+                  description: 'Carregue os dados primeiro',
+                });
               }
             }}
           >

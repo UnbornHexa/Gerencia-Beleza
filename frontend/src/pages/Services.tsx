@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
+import { useToast } from '../hooks/use-toast';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -7,6 +8,7 @@ import { Plus, Edit, Trash2, Scissors } from 'lucide-react';
 import ServiceModal from '../components/modals/ServiceModal';
 
 export default function Services() {
+  const { toast } = useToast();
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -98,9 +100,18 @@ export default function Services() {
                     if (confirm('Tem certeza que deseja excluir este serviço?')) {
                       try {
                         await api.delete(`/services/${service._id}`);
+                        toast({
+                          variant: 'success',
+                          title: 'Sucesso!',
+                          description: 'Serviço excluído com sucesso!',
+                        });
                         loadServices();
-                      } catch (error) {
-                        alert('Erro ao excluir serviço');
+                      } catch (error: any) {
+                        toast({
+                          variant: 'error',
+                          title: 'Erro',
+                          description: error.response?.data?.message || 'Erro ao excluir serviço',
+                        });
                       }
                     }
                   }}

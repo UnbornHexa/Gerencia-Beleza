@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
+import { useToast } from '../hooks/use-toast';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -7,6 +8,7 @@ import { Plus, Edit, Trash2, User } from 'lucide-react';
 import ClientModal from '../components/modals/ClientModal';
 
 export default function Clients() {
+  const { toast } = useToast();
   const [clients, setClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -113,9 +115,18 @@ export default function Clients() {
                     if (confirm('Tem certeza que deseja excluir este cliente?')) {
                       try {
                         await api.delete(`/clients/${client._id}`);
+                        toast({
+                          variant: 'success',
+                          title: 'Sucesso!',
+                          description: 'Cliente excluído com sucesso!',
+                        });
                         loadClients();
-                      } catch (error) {
-                        alert('Erro ao excluir cliente');
+                      } catch (error: any) {
+                        toast({
+                          variant: 'error',
+                          title: 'Erro',
+                          description: error.response?.data?.message || 'Erro ao excluir cliente',
+                        });
                       }
                     }
                   }}

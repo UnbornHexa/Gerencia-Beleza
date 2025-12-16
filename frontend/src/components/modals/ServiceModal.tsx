@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
+import { useToast } from '../../hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -14,6 +15,7 @@ interface ServiceModalProps {
 }
 
 export default function ServiceModal({ open, onClose, onSuccess, service }: ServiceModalProps) {
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -46,13 +48,27 @@ export default function ServiceModal({ open, onClose, onSuccess, service }: Serv
     try {
       if (service) {
         await api.put(`/services/${service._id}`, formData);
+        toast({
+          variant: 'success',
+          title: 'Sucesso!',
+          description: 'Serviço atualizado com sucesso!',
+        });
       } else {
         await api.post('/services', formData);
+        toast({
+          variant: 'success',
+          title: 'Sucesso!',
+          description: 'Serviço criado com sucesso!',
+        });
       }
       onSuccess();
       onClose();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Erro ao salvar serviço');
+      toast({
+        variant: 'error',
+        title: 'Erro',
+        description: error.response?.data?.message || 'Erro ao salvar serviço',
+      });
     } finally {
       setLoading(false);
     }

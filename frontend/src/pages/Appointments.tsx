@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
+import { useToast } from '../hooks/use-toast';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Select } from '../components/ui/select';
@@ -8,6 +9,7 @@ import { format } from 'date-fns';
 import AppointmentModal from '../components/modals/AppointmentModal';
 
 export default function Appointments() {
+  const { toast } = useToast();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [view, setView] = useState('day');
   const [loading, setLoading] = useState(true);
@@ -172,17 +174,30 @@ export default function Appointments() {
                 variant="destructive"
                 onClick={async () => {
                   if (!cancellationReason.trim()) {
-                    alert('Por favor, informe o motivo do cancelamento');
+                    toast({
+                      variant: 'warning',
+                      title: 'Aviso',
+                      description: 'Por favor, informe o motivo do cancelamento',
+                    });
                     return;
                   }
                   try {
                     await api.delete(`/appointments/${appointmentToDelete._id}?reason=${encodeURIComponent(cancellationReason)}`);
+                    toast({
+                      variant: 'success',
+                      title: 'Sucesso!',
+                      description: 'Agendamento cancelado com sucesso!',
+                    });
                     setDeleteModalOpen(false);
                     setCancellationReason('');
                     setAppointmentToDelete(null);
                     loadAppointments();
-                  } catch (error) {
-                    alert('Erro ao cancelar agendamento');
+                  } catch (error: any) {
+                    toast({
+                      variant: 'error',
+                      title: 'Erro',
+                      description: error.response?.data?.message || 'Erro ao cancelar agendamento',
+                    });
                   }
                 }}
               >

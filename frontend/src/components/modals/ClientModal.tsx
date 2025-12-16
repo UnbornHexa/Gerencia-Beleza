@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
+import { useToast } from '../../hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -14,6 +15,7 @@ interface ClientModalProps {
 }
 
 export default function ClientModal({ open, onClose, onSuccess, client }: ClientModalProps) {
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -34,6 +36,29 @@ export default function ClientModal({ open, onClose, onSuccess, client }: Client
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
 
+  // Helper function to sanitize address object - only keep allowed fields
+  // Explicitly removes any non-whitelisted properties like property_id
+  const sanitizeAddress = (address: any) => {
+    if (!address || typeof address !== 'object') {
+      return {
+        cep: '',
+        state: '',
+        city: '',
+        street: '',
+        number: '',
+        complement: '',
+        neighborhood: '',
+      };
+    }
+    // Only return explicitly allowed fields, ignoring any others
+    const allowedFields = ['cep', 'state', 'city', 'street', 'number', 'complement', 'neighborhood'];
+    const sanitized: any = {};
+    allowedFields.forEach(field => {
+      sanitized[field] = address[field] || '';
+    });
+    return sanitized;
+  };
+
   useEffect(() => {
     if (open) {
       if (client) {
@@ -41,15 +66,7 @@ export default function ClientModal({ open, onClose, onSuccess, client }: Client
           name: client.name || '',
           phone: client.phone || '',
           email: client.email || '',
-          address: client.address || {
-            cep: '',
-            state: '',
-            city: '',
-            street: '',
-            number: '',
-            complement: '',
-            neighborhood: '',
-          },
+          address: sanitizeAddress(client.address),
           isVip: client.isVip || false,
           notes: client.notes || '',
         });
@@ -125,15 +142,35 @@ export default function ClientModal({ open, onClose, onSuccess, client }: Client
     setLoading(true);
 
     try {
+      // Sanitize the address before sending to API
+      const sanitizedData = {
+        ...formData,
+        address: sanitizeAddress(formData.address),
+      };
+
       if (client) {
-        await api.put(`/clients/${client._id}`, formData);
+        await api.put(`/clients/${client._id}`, sanitizedData);
+        toast({
+          variant: 'success',
+          title: 'Sucesso!',
+          description: 'Cliente atualizado com sucesso!',
+        });
       } else {
-        await api.post('/clients', formData);
+        await api.post('/clients', sanitizedData);
+        toast({
+          variant: 'success',
+          title: 'Sucesso!',
+          description: 'Cliente criado com sucesso!',
+        });
       }
       onSuccess();
       onClose();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Erro ao salvar cliente');
+      toast({
+        variant: 'error',
+        title: 'Erro',
+        description: error.response?.data?.message || 'Erro ao salvar cliente',
+      });
     } finally {
       setLoading(false);
     }
