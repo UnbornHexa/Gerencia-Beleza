@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input';
 import { Plus, Edit, Trash2, Scissors } from 'lucide-react';
 import ServiceModal from '../components/modals/ServiceModal';
+import ConfirmDialog from '../components/modals/ConfirmDialog';
 
 export default function Services() {
   const { toast } = useToast();
@@ -14,6 +15,8 @@ export default function Services() {
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<any>(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<any>(null);
 
   useEffect(() => {
     loadServices();
@@ -96,24 +99,9 @@ export default function Services() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={async () => {
-                    if (confirm('Tem certeza que deseja excluir este serviço?')) {
-                      try {
-                        await api.delete(`/services/${service._id}`);
-                        toast({
-                          variant: 'success',
-                          title: 'Sucesso!',
-                          description: 'Serviço excluído com sucesso!',
-                        });
-                        loadServices();
-                      } catch (error: any) {
-                        toast({
-                          variant: 'error',
-                          title: 'Erro',
-                          description: error.response?.data?.message || 'Erro ao excluir serviço',
-                        });
-                      }
-                    }
+                  onClick={() => {
+                    setServiceToDelete(service);
+                    setConfirmDialogOpen(true);
                   }}
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
@@ -139,6 +127,38 @@ export default function Services() {
         }}
         onSuccess={loadServices}
         service={selectedService}
+      />
+
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        onClose={() => {
+          setConfirmDialogOpen(false);
+          setServiceToDelete(null);
+        }}
+        onConfirm={async () => {
+          if (serviceToDelete) {
+            try {
+              await api.delete(`/services/${serviceToDelete._id}`);
+              toast({
+                variant: 'success',
+                title: 'Sucesso!',
+                description: 'Serviço excluído com sucesso!',
+              });
+              loadServices();
+            } catch (error: any) {
+              toast({
+                variant: 'error',
+                title: 'Erro',
+                description: error.response?.data?.message || 'Erro ao excluir serviço',
+              });
+            }
+          }
+        }}
+        title="Excluir Serviço"
+        description="Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        variant="destructive"
       />
     </div>
   );

@@ -8,6 +8,7 @@ import { Plus, TrendingUp, TrendingDown, Calendar, DollarSign, CheckCircle, XCir
 import { format, subMonths, addMonths } from 'date-fns';
 import WhatsAppModal from '../components/modals/WhatsAppModal';
 import FinanceModal from '../components/modals/FinanceModal';
+import ConfirmDialog from '../components/modals/ConfirmDialog';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Dashboard() {
@@ -26,6 +27,8 @@ export default function Dashboard() {
   const [whatsappAction, setWhatsappAction] = useState<'confirm' | 'reschedule' | 'cancel'>('confirm');
   const [incomeModalOpen, setIncomeModalOpen] = useState(false);
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<{ appointment: any; action: 'confirm' | 'reschedule' | 'cancel' } | null>(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -74,9 +77,14 @@ export default function Dashboard() {
   };
 
   const handleAppointmentAction = async (appointment: any, action: 'confirm' | 'reschedule' | 'cancel') => {
-    if (!confirm(`Tem certeza que deseja ${action === 'confirm' ? 'confirmar' : action === 'reschedule' ? 'remarcar' : 'cancelar'} este agendamento?`)) {
-      return;
-    }
+    setPendingAction({ appointment, action });
+    setConfirmDialogOpen(true);
+  };
+
+  const executeAppointmentAction = async () => {
+    if (!pendingAction) return;
+
+    const { appointment, action } = pendingAction;
 
     try {
       // Get user's WhatsApp messages templates
@@ -117,6 +125,8 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Erro ao processar ação:', error);
+    } finally {
+      setPendingAction(null);
     }
   };
 
@@ -352,6 +362,24 @@ export default function Dashboard() {
           setExpenseModalOpen(false);
         }}
         type="expense"
+      />
+
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        onClose={() => {
+          setConfirmDialogOpen(false);
+          setPendingAction(null);
+        }}
+        onConfirm={executeAppointmentAction}
+        title="Confirmar Ação"
+        description={
+          pendingAction
+            ? `Tem certeza que deseja ${pendingAction.action === 'confirm' ? 'confirmar' : pendingAction.action === 'reschedule' ? 'remarcar' : 'cancelar'} este agendamento?`
+            : ''
+        }
+        confirmText="Confirmar"
+        cancelText="Cancelar"
+        variant="default"
       />
     </div>
   );

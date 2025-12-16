@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input';
 import { Plus, Edit, Trash2, User } from 'lucide-react';
 import ClientModal from '../components/modals/ClientModal';
+import ConfirmDialog from '../components/modals/ConfirmDialog';
 
 export default function Clients() {
   const { toast } = useToast();
@@ -14,6 +15,8 @@ export default function Clients() {
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<any>(null);
 
   useEffect(() => {
     loadClients();
@@ -111,24 +114,9 @@ export default function Clients() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={async () => {
-                    if (confirm('Tem certeza que deseja excluir este cliente?')) {
-                      try {
-                        await api.delete(`/clients/${client._id}`);
-                        toast({
-                          variant: 'success',
-                          title: 'Sucesso!',
-                          description: 'Cliente excluído com sucesso!',
-                        });
-                        loadClients();
-                      } catch (error: any) {
-                        toast({
-                          variant: 'error',
-                          title: 'Erro',
-                          description: error.response?.data?.message || 'Erro ao excluir cliente',
-                        });
-                      }
-                    }
+                  onClick={() => {
+                    setClientToDelete(client);
+                    setConfirmDialogOpen(true);
                   }}
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
@@ -154,6 +142,38 @@ export default function Clients() {
         }}
         onSuccess={loadClients}
         client={selectedClient}
+      />
+
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        onClose={() => {
+          setConfirmDialogOpen(false);
+          setClientToDelete(null);
+        }}
+        onConfirm={async () => {
+          if (clientToDelete) {
+            try {
+              await api.delete(`/clients/${clientToDelete._id}`);
+              toast({
+                variant: 'success',
+                title: 'Sucesso!',
+                description: 'Cliente excluído com sucesso!',
+              });
+              loadClients();
+            } catch (error: any) {
+              toast({
+                variant: 'error',
+                title: 'Erro',
+                description: error.response?.data?.message || 'Erro ao excluir cliente',
+              });
+            }
+          }
+        }}
+        title="Excluir Cliente"
+        description="Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        variant="destructive"
       />
     </div>
   );
